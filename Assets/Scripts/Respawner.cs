@@ -3,7 +3,9 @@ using UnityEngine;
 public class Respawner : MonoBehaviour
 {
     [SerializeField]
-    private Vector3 _spawnPosition;
+    private Transform _parent;
+    [SerializeField]
+    private Vector3 _spawnLocalPosition;
     [SerializeField]
     private Quaternion _spawnRotation;
     [SerializeField]
@@ -11,7 +13,11 @@ public class Respawner : MonoBehaviour
 
     public void Respawn()
     {
-        transform.position = _spawnPosition;
+        Vector3 newPosition = _spawnLocalPosition;
+        if(_parent != null)
+            newPosition += _parent.position;
+
+        transform.position = newPosition;
         transform.rotation = _spawnRotation;
 
         Rigidbody2D rigidbody = GetComponent<Rigidbody2D>();
@@ -20,5 +26,16 @@ public class Respawner : MonoBehaviour
             rigidbody.velocity = Vector2.zero;
             rigidbody.angularVelocity = 0;
         }
+    }
+
+    [ContextMenu("Set From Current")]
+    public void SetFromCurrent()
+    {
+        _spawnRotation = transform.rotation;
+
+        if(_parent == null)
+            _spawnLocalPosition = transform.position;
+        else
+            _spawnLocalPosition = transform.position - _parent.position;
     }
 }

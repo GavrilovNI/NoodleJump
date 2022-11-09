@@ -15,4 +15,7 @@ public class Platform : MonoBehaviour
     {
         return _width;
     }
+
+    //public Bounds Get
+
 }

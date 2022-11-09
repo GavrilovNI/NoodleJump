@@ -11,19 +11,39 @@ public class NoodleMovement : MonoBehaviour
     [SerializeField]
     private float _speed = 1;
 
+    [SerializeField]
+    private AnimationCurve _speedCurve;
+
+    [Min(0)]
+    [SerializeField]
+    private float _gyroAngle = 45;
+
     private Rigidbody2D _rigidbody;
     private float _input;
 
     private void Awake()
     {
         _rigidbody = GetComponent<Rigidbody2D>();
-    }
+        Input.gyro.enabled = true;
+    }  
 
     private void HandleInput()
     {
-        _input = Input.GetAxisRaw(HorizontalAxisName);
-        if(_input != 0)
-            _input = Mathf.Sign(_input);
+        float angle = Input.gyro.gravity.x * 90;
+
+#if UNITY_EDITOR
+        if(UnityEditor.EditorApplication.isRemoteConnected)
+        {
+#endif
+            _input = Mathf.InverseLerp(-_gyroAngle, _gyroAngle, angle) * 2f - 1f;
+            _input = _speedCurve.Evaluate(Mathf.Abs(_input)) * Mathf.Sign(_input);
+#if UNITY_EDITOR
+        }
+        else
+        {
+            _input = Input.GetAxisRaw(HorizontalAxisName);
+        }
+#endif
     }
 
     private void Update()
